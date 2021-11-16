@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+	<!-- 数据源 -->
+	<argument name="data" xsi:type="array">
+		<item name="js_config" xsi:type="array">
+			<item name="provider" xsi:type="string">qr_slider_index_listing.qr_slider_index_listing_data_source</item>
+			<item name="deps" xsi:type="string">qr_slider_index_listing.qr_slider_index_listing_data_source</item>
+		</item>
+		<item name="spinner" xsi:type="string">qr_slider_items_columns</item>
+		<item name="buttons" xsi:type="array">
+			<item name="add" xsi:type="array">
+				<item name="name" xsi:type="string">add</item>
+				<item name="label" xsi:type="string" translate="true">Add Slider</item>
+				<item name="class" xsi:type="string">primary</item>
+				<item name="url" xsi:type="string">*/*/add</item>
+			</item>
+		</item>
+	</argument>
+	<dataSource name="qr_slider_index_listing_data_source" component="Magento_Ui/js/grid/provider">
+		<settings>
+			<updateUrl path="mui/index/render"/>
+		</settings>
+		<!--<aclResource>Qianrui_Slider::index</aclResource>-->
+		<dataProvider class="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider" name="qr_slider_index_listing_data_source">
+			<settings>
+				<requestFieldName>id</requestFieldName>
+				<primaryFieldName>id</primaryFieldName>
+			</settings>
+		</dataProvider>
+	</dataSource>
+
+	<!-- 工具条 -->
+	<container name="listing_top">
+		<argument name="data" xsi:type="array">
+			<item name="config" xsi:type="array">
+				<item name="template" xsi:type="string">ui/grid/toolbar</item>
+			</item>
+		</argument>
+
+		<!-- 过滤器 -->
+		<filters name="listing_filters" />
+		<!-- 书签 -->
+		<bookmark name="bookmarks"/>
+		<!-- 控制显示的字段 -->
+		<columnsControls name="columns_controls"/>
+		<!-- 导出 -->
+		<exportButton name="export_button"/>
+		<!-- 分页 -->
+		<paging name="listing_paging"/>
+
+		<!--批量操作-->
+		<massaction name="listing_massaction" component="Magento_Ui/js/grid/tree-massactions">
+			<action name="enable_status">
+				<settings>
+					<confirm>
+						<message translate="true">Are you sure to enable status?</message>
+						<title translate="true">Enable</title>
+					</confirm>
+					<url path="qr_slider/index/enable"/>
+					<type>enable_status</type>
+					<label translate="true">Enable</label>
+				</settings>
+			</action>
+			<action name="disable_status">
+				<settings>
+					<confirm>
+						<message translate="true">Are you sure to disable status?</message>
+						<title translate="true">Disable</title>
+					</confirm>
+					<url path="qr_slider/index/disable"/>
+					<type>disable_status</type>
+					<label translate="true">Disable</label>
+				</settings>
+			</action>
+		</massaction>
+	</container>
+
+	<!-- 显示的字段 -->
+	<columns name="qr_slider_items_columns">
+		<selectionsColumn name="ids" sortOrder="0">
+			<settings>
+				<indexField>id</indexField>
+			</settings>
+		</selectionsColumn>
+		<column name="id">
+			<argument name="data" xsi:type="array">
+				<item name="js_config" xsi:type="array">
+					<item name="component" xsi:type="string">Magento_Ui/js/grid/columns/column</item>
+				</item>
+				<item name="config" xsi:type="array">
+					<item name="indexField" xsi:type="string">id</item>
+					<item name="filter" xsi:type="string">text</item>
+					<item name="sorting" xsi:type="string">desc</item>
+					<item name="label" xsi:type="string" translate="true">ID</item>
+				</item>
+			</argument>
+		</column>
+		<!-- 图片 -->
+		<column name="image" class="Qianrui\Slider\Ui\Component\Listing\Column\Image">
+			<argument name="data" xsi:type="array">
+				<item name="config" xsi:type="array">
+					<item name="component" xsi:type="string">Magento_Ui/js/grid/columns/thumbnail</item>
+					<item name="filter" xsi:type="string">text</item>
+					<item name="label" xsi:type="string" translate="true">Image</item>
+				</item>
+			</argument>
+		</column>
+		<column name="title">
+			<argument name="data" xsi:type="array">
+				<item name="config" xsi:type="array">
+					<item name="filter" xsi:type="string">text</item>
+					<item name="label" xsi:type="string" translate="true">Title</item>
+				</item>
+			</argument>
+		</column>
+		<column name="desc">
+			<argument name="data" xsi:type="array">
+				<item name="config" xsi:type="array">
+					<!--<item name="filter" xsi:type="string">text</item>-->
+					<item name="label" xsi:type="string" translate="true">Description</item>
+				</item>
+			</argument>
+		</column>
+		<column name="url">
+			<argument name="data" xsi:type="array">
+				<item name="config" xsi:type="array">
+					<item name="filter" xsi:type="string">text</item>
+					<item name="label" xsi:type="string" translate="true">Url</item>
+				</item>
+			</argument>
+		</column>
+		<column name="sort">
+			<argument name="data" xsi:type="array">
+				<item name="config" xsi:type="array">
+					<item name="filter" xsi:type="string">text</item>
+					<item name="label" xsi:type="string" translate="true">Sort</item>
+				</item>
+			</argument>
+		</column>
+		<!-- 激活 -->
+		<column name="active" component="Magento_Ui/js/grid/columns/select">
+			<settings>
+				<filter>select</filter>
+				<options class="Magento\Config\Model\Config\Source\Yesno"/>
+				<dataType>select</dataType>
+				<label translate="true">Active</label>
+			</settings>
+		</column>
+		<!-- 编辑 -->
+		<actionsColumn name="actions" class="Qianrui\Slider\Ui\Component\Listing\Column\PostActions">
+			<argument name="data" xsi:type="array">
+				<item name="config" xsi:type="array">
+					<item name="resizeEnabled" xsi:type="boolean">false</item>
+					<item name="resizeDefaultWidth" xsi:type="string">10</item>
+					<item name="indexField" xsi:type="string">id</item>
+				</item>
+			</argument>
+		</actionsColumn>
+	</columns>
+</listing>
