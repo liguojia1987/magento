@@ -245,6 +245,7 @@ return [
         'Magento_PaypalReCaptcha' => 1,
         'MSP_TwoFactorAuth' => 1,
         'Qianrui_Backend' => 1,
+        'Qianrui_Customer' => 1,
         'Qianrui_Slider' => 1,
         'Temando_ShippingRemover' => 1,
         'Vertex_Tax' => 1,
