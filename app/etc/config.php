@@ -246,6 +246,7 @@ return [
         'MSP_TwoFactorAuth' => 1,
         'Qianrui_Backend' => 1,
         'Qianrui_Customer' => 1,
+        'Qianrui_Hello' => 1,
         'Qianrui_Helloworld' => 1,
         'Qianrui_Slider' => 1,
         'Temando_ShippingRemover' => 1,
