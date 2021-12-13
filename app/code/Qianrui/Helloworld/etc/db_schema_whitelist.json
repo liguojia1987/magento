@@ -1,0 +1,8 @@
+{
+    "qr_hello2": {
+        "column": {
+            "status": true,
+            "name": true
+        }
+    }
+}

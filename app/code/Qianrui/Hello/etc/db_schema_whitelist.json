@@ -1,0 +1,14 @@
+{
+    "qr_hello2": {
+        "column": {
+            "id": true,
+            "name": true,
+            "created_at": true,
+            "updated_at": true,
+            "status": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    }
+}

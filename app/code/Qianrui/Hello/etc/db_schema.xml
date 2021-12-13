@@ -1,0 +1,12 @@
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="qr_hello2" comment="Hello2 Table">
+        <column xsi:type="int" padding="10" name="id" unsigned="true" nullable="false" comment="ID" identity="true"/>
+        <column xsi:type="varchar" name="name" default="" nullable="false" length="255" comment="Name"/>
+        <!--<column xsi:type="smallint" padding="6" name="status" default="0" nullable="false" comment="Status" after="name"/>-->
+        <column xsi:type="timestamp" name="created_at" default="CURRENT_TIMESTAMP" on_update="false"  comment="Created_at"/>
+        <column xsi:type="timestamp" name="updated_at" default="CURRENT_TIMESTAMP" on_update="true" comment="Updated_at"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+    </table>
+</schema>
