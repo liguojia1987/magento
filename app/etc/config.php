@@ -249,6 +249,7 @@ return [
         'Qianrui_Hello' => 1,
         'Qianrui_Helloworld' => 1,
         'Qianrui_Slider' => 1,
+        'Qianrui_VendorsAvatarProfile' => 1,
         'Temando_ShippingRemover' => 1,
         'Vertex_Tax' => 1,
         'Vertex_AddressValidation' => 1,
