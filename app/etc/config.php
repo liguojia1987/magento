@@ -248,6 +248,7 @@ return [
         'Qianrui_Customer' => 1,
         'Qianrui_Hello' => 1,
         'Qianrui_Helloworld' => 1,
+        'Qianrui_Review' => 1,
         'Qianrui_Slider' => 1,
         'Qianrui_VendorsAvatarProfile' => 1,
         'Temando_ShippingRemover' => 1,
