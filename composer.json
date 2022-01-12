@@ -11,8 +11,9 @@
         "sort-packages": true
     },
     "require": {
-        "magento/product-community-edition": "2.3.6",
-        "magento/composer-root-update-plugin": "~1.0"
+        "cweagans/composer-patches": "^1.7",
+        "magento/composer-root-update-plugin": "~1.0",
+        "magento/product-community-edition": "2.3.6"
     },
     "require-dev": {
         "allure-framework/allure-phpunit": "~1.2.0",
@@ -73,6 +74,11 @@
         }
     ],
     "extra": {
-        "magento-force": "override"
+        "magento-force": "override",
+        "patches": {
+            "magento/framework": {
+                "Just For Test": "patches/composer/test.patch"
+            }
+        }
     }
 }
