@@ -8,4 +8,14 @@
             </argument>
         </arguments>
     </type>
+
+    <type name="Magento\Framework\Console\CommandListInterface">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="qianrui:helloworld:replace-forbidden-word" xsi:type="object">
+                    Qianrui\Helloworld\Console\Command\ReplaceForbiddenWord
+                </item>
+            </argument>
+        </arguments>
+    </type>
 </config>
