@@ -18,4 +18,6 @@
             </argument>
         </arguments>
     </type>
+
+    <preference for="Qianrui\Helloworld\Api\ShipmentInterface" type="Qianrui\Helloworld\Model\Shipment" />
 </config>
