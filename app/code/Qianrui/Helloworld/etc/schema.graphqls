@@ -1,0 +1,11 @@
+type Query {
+    sayHello(
+        name: String
+    ): String @resolver(class: "Qianrui\\Helloworld\\Model\\Resolver\\SayHello")
+    sayHello2: helloResponse @resolver(class: "Qianrui\\Helloworld\\Model\\Resolver\\SayHello2")
+}
+
+type helloResponse {
+    code: Int
+    message: String
+}
