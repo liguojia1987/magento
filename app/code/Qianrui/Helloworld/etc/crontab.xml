@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright © Hong Kong Telecommunications (HKT), Inc. All rights reserved.
+  -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="default">
+        <job name="check" instance="Qianrui\Helloworld\Cron\Check" method="execute">
+            <schedule>* * * * *</schedule>
+        </job>
+    </group>
+
+    <group id="test">
+        <job name="check2" instance="Qianrui\Helloworld\Cron\Check2" method="execute">
+            <schedule>* * * * *</schedule>
+        </job>
+    </group>
+</config>
