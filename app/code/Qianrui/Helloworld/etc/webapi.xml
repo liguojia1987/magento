@@ -4,6 +4,14 @@
 
     <route url="/V1/myshipment" method="GET">
         <service class="Qianrui\Helloworld\Api\ShipmentInterface" method="getList"/>
+        <!--<service class="Qianrui\Helloworld\Model\Shipment" method="getList"/>-->
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+
+    <route url="/V1/myshipment" method="POST">
+        <service class="Qianrui\Helloworld\Api\ShipmentInterface" method="addInfo"/>
         <resources>
             <resource ref="anonymous" />
         </resources>
