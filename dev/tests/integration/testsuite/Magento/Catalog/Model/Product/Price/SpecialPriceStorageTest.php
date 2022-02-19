@@ -29,7 +29,7 @@ class SpecialPriceStorageTest extends TestCase
     /**
      * @inheritDoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $objectManager = Bootstrap::getObjectManager();
@@ -52,10 +52,13 @@ class SpecialPriceStorageTest extends TestCase
             ->setStoreId(0)
             ->setPrice(5.0)
             ->setPriceFrom($date->format('Y-m-d H:i:s'))
-            ->setPriceTo($date->modify('+1 day')->format('Y-m-d H:i:s'));
+            ->setPriceTo(
+                $date->modify('+1 day')
+                    ->format('Y-m-d H:i:s')
+            );
         $result = $this->model->update([$price]);
         $this->assertCount(1, $result);
-        $this->assertContains(
+        $this->assertStringContainsString(
             'The product that was requested doesn\'t exist.',
             (string) $result[0]->getMessage()
         );

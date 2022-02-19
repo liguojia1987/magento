@@ -5,7 +5,6 @@
  */
 declare(strict_types=1);
 
-use Magento\Catalog\Api\CategoryLinkManagementInterface;
 use Magento\Catalog\Api\ProductAttributeRepositoryInterface;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Api\Data\ProductExtensionFactory;
@@ -25,10 +24,11 @@ use Magento\Store\Api\WebsiteRepositoryInterface;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
+use Magento\TestFramework\Workaround\Override\Fixture\Resolver;
 
-require __DIR__ . '/../../Store/_files/second_website_with_store_group_and_store.php';
-require __DIR__ . '/configurable_attribute.php';
-require __DIR__ . '/../../Catalog/_files/category.php';
+Resolver::getInstance()->requireDataFixture('Magento/Store/_files/second_website_with_store_group_and_store.php');
+Resolver::getInstance()->requireDataFixture('Magento/ConfigurableProduct/_files/configurable_attribute.php');
+Resolver::getInstance()->requireDataFixture('Magento/Catalog/_files/category.php');
 
 $objectManager = Bootstrap::getObjectManager();
 /** @var ProductAttributeRepositoryInterface $productAttributeRepository */

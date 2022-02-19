@@ -44,14 +44,14 @@ class DeleteTest extends AbstractBackendController
     /**
      * @inheritdoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
         $this->fileSystem = $this->_objectManager->get(Filesystem::class);
         $this->sourceFilePath = __DIR__ . '/../../Import/_files' . DIRECTORY_SEPARATOR . $this->fileName;
         //Refers to tests 'var' directory
-        $this->varDirectory = $this->fileSystem->getDirectoryRead(DirectoryList::VAR_DIR);
+        $this->varDirectory = $this->fileSystem->getDirectoryRead(DirectoryList::VAR_IMPORT_EXPORT);
     }
 
     /**
@@ -108,7 +108,7 @@ class DeleteTest extends AbstractBackendController
     /**
      * @inheritdoc
      */
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         $filesystem = Bootstrap::getObjectManager()->get(Filesystem::class);
         /** @var WriteInterface $directory */

@@ -11,13 +11,14 @@ use Magento\Security\Model\PasswordResetRequestEvent;
 use Magento\Security\Model\PasswordResetRequestEventFactory;
 use Magento\Security\Model\ResourceModel\PasswordResetRequestEvent as PasswordResetRequestEventResource;
 use Magento\TestFramework\Helper\Bootstrap;
+use Magento\TestFramework\Workaround\Override\Fixture\Resolver;
 
 $objectManager = Bootstrap::getObjectManager();
 /** @var Manager $moduleManager */
 $moduleManager = $objectManager->get(Manager::class);
 //This check is needed because Magento_Security independent of Magento_Customer
 if ($moduleManager->isEnabled('Magento_Customer')) {
-    require __DIR__ . '/../../../Magento/Customer/_files/customer.php';
+    Resolver::getInstance()->requireDataFixture('Magento/Customer/_files/customer.php');
 
     /** @var PasswordResetRequestEventFactory $passwordResetRequestEventFactory */
     $passwordResetRequestEventFactory = $objectManager->get(PasswordResetRequestEventFactory::class);

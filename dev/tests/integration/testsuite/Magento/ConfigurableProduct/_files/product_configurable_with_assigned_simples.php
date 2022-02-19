@@ -3,6 +3,7 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
+declare(strict_types=1);
 
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Model\Indexer\Product\Price\Processor as PriceIndexerProcessor;
@@ -11,17 +12,23 @@ use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Catalog\Model\Product\Visibility;
 use Magento\Catalog\Setup\CategorySetup;
+use Magento\CatalogInventory\Model\Stock\Item;
 use Magento\ConfigurableProduct\Helper\Product\Options\Factory;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\Eav\Api\Data\AttributeOptionInterface;
+use Magento\Eav\Model\Config;
 use Magento\TestFramework\Helper\Bootstrap;
+use Magento\TestFramework\Workaround\Override\Fixture\Resolver;
 
 Bootstrap::getInstance()->reinitialize();
 
-require __DIR__ . '/configurable_attribute.php';
+Resolver::getInstance()->requireDataFixture('Magento/ConfigurableProduct/_files/configurable_attribute.php');
 
 $installer = Bootstrap::getObjectManager()->create(CategorySetup::class);
 $attributeSetId = $installer->getAttributeSetId('catalog_product', 'Default');
+
+$eavConfig = Bootstrap::getObjectManager()->get(Config::class);
+$attribute = $eavConfig->getAttribute('catalog_product', 'test_configurable');
 
 $product = Bootstrap::getObjectManager()->create(Product::class);
 $product->setTypeId(Configurable::TYPE_CODE)
@@ -59,7 +66,7 @@ foreach ($options as $option) {
         );
     $childProduct = $productRepository->save($childProduct);
 
-    $stockItem = Bootstrap::getObjectManager()->create(\Magento\CatalogInventory\Model\Stock\Item::class);
+    $stockItem = Bootstrap::getObjectManager()->create(Item::class);
     $stockItem->load($childProduct->getId(), 'product_id');
     if (!$stockItem->getProductId()) {
         $stockItem->setProductId($childProduct->getId());

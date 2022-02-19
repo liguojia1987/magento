@@ -106,7 +106,7 @@ abstract class CombinationAbstract extends TestCase
     /**
      * @inheritdoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->objectManager = Bootstrap::getObjectManager();
@@ -128,7 +128,7 @@ abstract class CombinationAbstract extends TestCase
     /**
      * @inheritdoc
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         parent::tearDown();
         $this->registry->unregister('product');
@@ -164,7 +164,7 @@ abstract class CombinationAbstract extends TestCase
                 'regular_price' => 10,
                 'tier_data' => [
                     'prices' => [['customer_group_id' => Group::CUST_GROUP_ALL, 'qty' => 2, 'percent_value' => 70]],
-                    'message_config' => ['qty' => 2, 'price' => 3.00, 'percent' => 70],
+                    'message_config' => ['qty' => 2, 'price' => 3.00, 'percent' => 50],
                 ],
             ],
             'fixed_tier_price_with_qty_1_is_lower_than_special' => [
@@ -245,7 +245,7 @@ abstract class CombinationAbstract extends TestCase
                 ],
                 'tier_data' => [
                     'prices' => [['customer_group_id' => Group::CUST_GROUP_ALL, 'qty' => 2, 'percent_value' => 70]],
-                    'message_config' => ['qty' => 2, 'price' => 3.00, 'percent' => 70],
+                    'message_config' => ['qty' => 2, 'price' => 3.00, 'percent' => 25],
                 ],
             ],
             'fixed_catalog_rule_price_lower_than_tier_price' => [
@@ -582,7 +582,7 @@ abstract class CombinationAbstract extends TestCase
         $this->addOptionToProduct($product);
         $this->productRepository->save($product);
         $priceHtml = $this->getCustomOptionsPriceHtml($this->getProduct($sku));
-        $this->assertContains(sprintf('data-price-amount="%s"', $optionPrice), $priceHtml);
+        $this->assertStringContainsString(sprintf('data-price-amount="%s"', $optionPrice), $priceHtml);
     }
 
     /**

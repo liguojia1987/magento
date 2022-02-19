@@ -12,6 +12,7 @@ use Magento\Framework\App\Config\ReinitableConfigInterface;
 use Magento\Framework\Event\Observer;
 use Magento\TestFramework\ConfigurableProduct\Model\DeleteConfigurableProduct;
 use Magento\TestFramework\Helper\Bootstrap;
+use Magento\TestFramework\Workaround\Override\Fixture\Resolver;
 
 $objectManager = Bootstrap::getObjectManager();
 /** @var DeleteConfigurableProduct $deleteConfigurableProduct */
@@ -24,6 +25,10 @@ $objectManager->get(ReinitableConfigInterface::class)->reinit();
 $observer = $objectManager->get(Observer::class);
 $objectManager->get(SwitchPriceAttributeScopeOnConfigChange::class)->execute($observer);
 
-require __DIR__ . '/../../Store/_files/second_website_with_store_group_and_store_rollback.php';
-require __DIR__ . '/configurable_attribute_rollback.php';
-require __DIR__ . '/../../Catalog/_files/category_rollback.php';
+Resolver::getInstance()->requireDataFixture(
+    'Magento/Store/_files/second_website_with_store_group_and_store_rollback.php'
+);
+Resolver::getInstance()->requireDataFixture(
+    'Magento/ConfigurableProduct/_files/configurable_attribute_rollback.php'
+);
+Resolver::getInstance()->requireDataFixture('Magento/Catalog/_files/category_rollback.php');

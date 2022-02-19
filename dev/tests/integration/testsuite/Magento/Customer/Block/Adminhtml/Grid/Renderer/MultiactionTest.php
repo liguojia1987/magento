@@ -72,7 +72,7 @@ class MultiactionTest extends AbstractMultiactionTest
      */
     public function testRenderSimpleProduct(): void
     {
-        $this->markTestSkipped('Test is blocked by issue MC-30725');
+        $this->markTestSkipped('Test is blocked by issue MC-34612');
         $this->processRender();
     }
 }

@@ -49,7 +49,7 @@ class ShipmentTest extends TestCase
     /**
      * @inheritdoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -64,7 +64,7 @@ class ShipmentTest extends TestCase
     /**
      * @inheritdoc
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->registry->unregister('current_order');
         $this->registry->unregister('current_shipment');
@@ -122,7 +122,7 @@ class ShipmentTest extends TestCase
             ],
         ];
         foreach ($templates as $key => $data) {
-            $this->assertContains(
+            $this->assertStringContainsString(
                 $data['expected_data'],
                 strip_tags($block->setTemplate($data['template'])->toHtml()),
                 sprintf('%s wasn\'t found.', $key)
@@ -151,7 +151,7 @@ class ShipmentTest extends TestCase
         foreach ([$order->getShippingAddress(), $order->getBillingAddress()] as $address) {
             $addressBoxXpath = ($address->getAddressType() == 'shipping')
                 ? "//div[contains(@class, 'box-order-shipping-address')]//address[contains(., '%s')]"
-                : "//div[contains(@class, 'box-order-billing-method')]//address[contains(., '%s')]";
+                : "//div[contains(@class, 'box-order-billing-address')]//address[contains(., '%s')]";
             $this->assertEquals(
                 1,
                 Xpath::getElementsCountForXpath(sprintf($addressBoxXpath, $address->getName()), $html),

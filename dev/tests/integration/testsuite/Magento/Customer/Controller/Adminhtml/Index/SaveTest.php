@@ -7,19 +7,27 @@ declare(strict_types=1);
 
 namespace Magento\Customer\Controller\Adminhtml\Index;
 
+use Magento\Backend\Model\Session;
+use Magento\Customer\Api\CustomerMetadataInterface;
 use Magento\Customer\Api\CustomerNameGenerationInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Model\Data\Customer as CustomerData;
 use Magento\Customer\Model\EmailNotification;
-use Magento\Backend\Model\Session;
+use Magento\Eav\Api\AttributeRepositoryInterface;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\Request\Http as HttpRequest;
+use Magento\Framework\Locale\ResolverInterface;
 use Magento\Framework\Mail\Template\TransportBuilder;
 use Magento\Framework\Mail\TransportInterface;
 use Magento\Framework\Message\MessageInterface;
 use Magento\Newsletter\Model\Subscriber;
 use Magento\Newsletter\Model\SubscriberFactory;
+use Magento\Store\Model\Store;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\TestFramework\Helper\Bootstrap;
 use Magento\TestFramework\TestCase\AbstractBackendController;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Tests for save customer via backend/customer/index/save controller.
@@ -34,7 +42,7 @@ class SaveTest extends AbstractBackendController
      *
      * @var string
      */
-    private $_baseControllerUrl = 'http://localhost/index.php/backend/customer/index/';
+    private $baseControllerUrl = 'backend/customer/index/';
 
     /** @var CustomerRepositoryInterface */
     private $customerRepository;
@@ -48,16 +56,39 @@ class SaveTest extends AbstractBackendController
     /** @var Session */
     private $session;
 
+    /** @var StoreManagerInterface */
+    private $storeManager;
+
+    /** @var ResolverInterface */
+    private $localeResolver;
+
+    /** @var CustomerInterface */
+    private $customer;
+
     /**
      * @inheritdoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->customerRepository = $this->_objectManager->get(CustomerRepositoryInterface::class);
         $this->customerViewHelper = $this->_objectManager->get(CustomerNameGenerationInterface::class);
         $this->subscriberFactory = $this->_objectManager->get(SubscriberFactory::class);
         $this->session = $this->_objectManager->get(Session::class);
+        $this->storeManager = $this->_objectManager->get(StoreManagerInterface::class);
+        $this->localeResolver = $this->_objectManager->get(ResolverInterface::class);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function tearDown(): void
+    {
+        if ($this->customer instanceof CustomerInterface) {
+            $this->customerRepository->delete($this->customer);
+        }
+
+        parent::tearDown();
     }
 
     /**
@@ -77,7 +108,7 @@ class SaveTest extends AbstractBackendController
             $this->equalTo([(string)__('You saved the customer.')]),
             MessageInterface::TYPE_SUCCESS
         );
-        $this->assertRedirect($this->stringStartsWith($this->_baseControllerUrl . 'index/key/'));
+        $this->assertRedirect($this->stringContains($this->baseControllerUrl . 'index/key/'));
         $this->assertCustomerData(
             $postData['customer'][CustomerData::EMAIL],
             (int)$postData['customer'][CustomerData::WEBSITE_ID],
@@ -150,9 +181,11 @@ class SaveTest extends AbstractBackendController
             $this->equalTo($expectedMessage),
             MessageInterface::TYPE_ERROR
         );
-        $this->assertNotEmpty($this->session->getCustomerFormData());
-        $this->assertArraySubset($expectedData, $this->session->getCustomerFormData());
-        $this->assertRedirect($this->stringStartsWith($this->_baseControllerUrl . 'new/key/'));
+        $customerFormData = $this->session->getCustomerFormData();
+        $this->assertNotEmpty($customerFormData);
+        unset($customerFormData['form_key']);
+        $this->assertEquals($expectedData, $customerFormData);
+        $this->assertRedirect($this->stringContains($this->baseControllerUrl . 'new/key/'));
     }
 
     /**
@@ -245,21 +278,24 @@ class SaveTest extends AbstractBackendController
     /**
      * Update customer with subscription and redirect to edit page.
      *
+     * @magentoDataFixture Magento/Store/_files/core_fixturestore.php
      * @magentoDataFixture Magento/Customer/_files/customer.php
      * @return void
      */
     public function testUpdateCustomer(): void
     {
+        /** @var CustomerData $customerData */
+        $customerData = $this->customerRepository->getById(1);
+        $secondStore = $this->storeManager->getStore('fixturestore');
         $postData = $expectedData = [
             'customer' => [
                 CustomerData::FIRSTNAME => 'Jane',
                 CustomerData::MIDDLENAME => 'Mdl',
                 CustomerData::LASTNAME => 'Doe',
             ],
-            'subscription' => '1',
+            'subscription_status' => [$customerData->getWebsiteId() => '1'],
+            'subscription_store' => [$customerData->getWebsiteId() => $secondStore->getId()],
         ];
-        /** @var CustomerData $customerData */
-        $customerData = $this->customerRepository->getById(1);
         $postData['customer']['entity_id'] = $customerData->getId();
         $params = ['back' => true];
 
@@ -268,11 +304,16 @@ class SaveTest extends AbstractBackendController
             $this->equalTo([(string)__('You saved the customer.')]),
             MessageInterface::TYPE_SUCCESS
         );
-        $this->assertRedirect($this->stringStartsWith(
-            $this->_baseControllerUrl . 'edit/id/' . $customerData->getId()
+        $this->assertRedirect($this->stringContains(
+            $this->baseControllerUrl . 'edit/id/' . $customerData->getId()
         ));
         $this->assertCustomerData($customerData->getEmail(), (int)$customerData->getWebsiteId(), $expectedData);
-        $this->assertCustomerSubscription((int)$customerData->getId(), Subscriber::STATUS_SUBSCRIBED);
+        $this->assertCustomerSubscription(
+            (int)$customerData->getId(),
+            (int)$customerData->getWebsiteId(),
+            Subscriber::STATUS_SUBSCRIBED,
+            (int)$secondStore->getId()
+        );
     }
 
     /**
@@ -281,24 +322,33 @@ class SaveTest extends AbstractBackendController
      */
     public function testExistingCustomerUnsubscribeNewsletter(): void
     {
-        $customerId = 1;
+        /** @var CustomerData $customerData */
+        $customerData = $this->customerRepository->getById(1);
+        /** @var Store $defaultStore */
+        $defaultStore = $this->storeManager->getWebsite()->getDefaultStore();
         $postData = [
             'customer' => [
-                'entity_id' => $customerId,
+                'entity_id' => $customerData->getId(),
                 CustomerData::EMAIL => 'customer@example.com',
                 CustomerData::FIRSTNAME => 'test firstname',
                 CustomerData::LASTNAME => 'test lastname',
                 'sendemail_store_id' => '1'
             ],
-            'subscription' => '0'
+            'subscription_status' => [$customerData->getWebsiteId() => '0'],
+            'subscription_store' => [$customerData->getWebsiteId() => $defaultStore->getId()],
         ];
         $this->dispatchCustomerSave($postData);
         $this->assertSessionMessages(
             $this->equalTo([(string)__('You saved the customer.')]),
             MessageInterface::TYPE_SUCCESS
         );
-        $this->assertRedirect($this->stringStartsWith($this->_baseControllerUrl . 'index/key/'));
-        $this->assertCustomerSubscription($customerId, Subscriber::STATUS_UNSUBSCRIBED);
+        $this->assertRedirect($this->stringContains($this->baseControllerUrl . 'index/key/'));
+        $this->assertCustomerSubscription(
+            (int)$customerData->getId(),
+            (int)$customerData->getWebsiteId(),
+            Subscriber::STATUS_UNSUBSCRIBED,
+            (int)$defaultStore->getId()
+        );
     }
 
     /**
@@ -347,7 +397,7 @@ class SaveTest extends AbstractBackendController
          * Check that no errors were generated and set to session
          */
         $this->assertSessionMessages($this->isEmpty(), MessageInterface::TYPE_ERROR);
-        $this->assertRedirect($this->stringStartsWith($this->_baseControllerUrl . 'index/key/'));
+        $this->assertRedirect($this->stringContains($this->baseControllerUrl . 'index/key/'));
     }
 
     /**
@@ -381,13 +431,51 @@ class SaveTest extends AbstractBackendController
             ]),
             MessageInterface::TYPE_ERROR
         );
-        $this->assertArraySubset(
+        $customerFormData = $this->session->getCustomerFormData();
+        $this->assertNotEmpty($customerFormData);
+        unset($customerFormData['form_key']);
+        $this->assertEquals(
             $postFormatted,
-            $this->session->getCustomerFormData(),
-            true,
+            $customerFormData,
             'Customer form data should be formatted'
         );
-        $this->assertRedirect($this->stringStartsWith($this->_baseControllerUrl . 'new/key/'));
+        $this->assertRedirect($this->stringContains($this->baseControllerUrl . 'new/key/'));
+    }
+
+    /**
+     * @return void
+     */
+    public function testCreateCustomerByAdminWithLocaleGB(): void
+    {
+        $this->localeResolver->setLocale('en_GB');
+        $postData = array_replace_recursive(
+            $this->getDefaultCustomerData(),
+            [
+                'customer' => [
+                    CustomerData::DOB => '24/10/1990',
+                ],
+            ]
+        );
+        $expectedData = array_replace_recursive(
+            $postData,
+            [
+                'customer' => [
+                    CustomerData::DOB => '1990-10-24',
+                ],
+            ]
+        );
+        unset($expectedData['customer']['sendemail_store_id']);
+        $this->dispatchCustomerSave($postData);
+        $this->assertSessionMessages(
+            $this->containsEqual((string)__('You saved the customer.')),
+            MessageInterface::TYPE_SUCCESS
+        );
+        $this->assertRedirect($this->stringContains($this->baseControllerUrl . 'index/key/'));
+        $this->assertCustomerData(
+            $postData['customer'][CustomerData::EMAIL],
+            (int)$postData['customer'][CustomerData::WEBSITE_ID],
+            $expectedData
+        );
     }
 
     /**
@@ -410,7 +498,8 @@ class SaveTest extends AbstractBackendController
                 CustomerData::EMAIL => 'janedoe' . uniqid() . '@example.com',
                 CustomerData::DOB => '01/01/2000',
                 CustomerData::TAXVAT => '121212',
-                CustomerData::GENDER => 'Male',
+                CustomerData::GENDER => Bootstrap::getObjectManager()->get(AttributeRepositoryInterface::class)
+                    ->get(CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER, 'gender')->getSource()->getOptionId('Male'),
                 'sendemail_store_id' => '1',
             ]
         ];
@@ -430,7 +519,6 @@ class SaveTest extends AbstractBackendController
             [
                 'customer' => [
                     CustomerData::DOB => '2000-01-01',
-                    CustomerData::GENDER => '0',
                     CustomerData::STORE_ID => 1,
                     CustomerData::CREATED_IN => 'Default Store View',
                 ],
@@ -452,7 +540,7 @@ class SaveTest extends AbstractBackendController
         if (!empty($params)) {
             $this->getRequest()->setParams($params);
         }
-        $this->dispatch('backend/customer/index/save');
+        $this->dispatch($this->baseControllerUrl . 'save');
     }
 
     /**
@@ -468,9 +556,8 @@ class SaveTest extends AbstractBackendController
         int $customerWebsiteId,
         array $expectedData
     ): void {
-        /** @var CustomerData $customerData */
-        $customerData = $this->customerRepository->get($customerEmail, $customerWebsiteId);
-        $actualCustomerArray = $customerData->__toArray();
+        $this->customer = $this->customerRepository->get($customerEmail, $customerWebsiteId);
+        $actualCustomerArray = $this->customer->__toArray();
         foreach ($expectedData['customer'] as $key => $expectedValue) {
             $this->assertEquals(
                 $expectedValue,
@@ -484,15 +571,22 @@ class SaveTest extends AbstractBackendController
      * Check that customer subscription status match expected status.
      *
      * @param int $customerId
+     * @param int $websiteId
      * @param int $expectedStatus
+     * @param int $expectedStoreId
      * @return void
      */
-    private function assertCustomerSubscription(int $customerId, int $expectedStatus): void
-    {
+    private function assertCustomerSubscription(
+        int $customerId,
+        int $websiteId,
+        int $expectedStatus,
+        int $expectedStoreId
+    ): void {
         $subscriber = $this->subscriberFactory->create();
-        $subscriber->loadByCustomerId($customerId);
+        $subscriber->loadByCustomer($customerId, $websiteId);
         $this->assertNotEmpty($subscriber->getId());
         $this->assertEquals($expectedStatus, $subscriber->getStatus());
+        $this->assertEquals($expectedStoreId, $subscriber->getStoreId());
     }
 
     /**
@@ -504,7 +598,7 @@ class SaveTest extends AbstractBackendController
      * @param array $sender
      * @param int $customerId
      * @param string|null $newEmail
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return MockObject
      */
     private function prepareEmailMock(
         int $occurrenceNumber,
@@ -512,7 +606,7 @@ class SaveTest extends AbstractBackendController
         array $sender,
         int $customerId,
         $newEmail = null
-    ) : \PHPUnit_Framework_MockObject_MockObject {
+    ) : MockObject {
         $area = Area::AREA_FRONTEND;
         $customer = $this->customerRepository->getById($customerId);
         $storeId = $customer->getStoreId();
@@ -560,12 +654,12 @@ class SaveTest extends AbstractBackendController
     /**
      * Add email mock to class
      *
-     * @param \PHPUnit_Framework_MockObject_MockObject $transportBuilderMock
+     * @param MockObject $transportBuilderMock
      * @param string $className
      * @return void
      */
     private function addEmailMockToClass(
-        \PHPUnit_Framework_MockObject_MockObject $transportBuilderMock,
+        MockObject $transportBuilderMock,
         $className
     ): void {
         $mocked = $this->_objectManager->create(

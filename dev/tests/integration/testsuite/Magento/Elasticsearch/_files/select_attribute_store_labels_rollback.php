@@ -5,4 +5,6 @@
  */
 declare(strict_types=1);
 
-require __DIR__ . '/select_attribute_rollback.php';
+use Magento\TestFramework\Workaround\Override\Fixture\Resolver;
+
+Resolver::getInstance()->requireDataFixture('Magento/Elasticsearch/_files/select_attribute_rollback.php');

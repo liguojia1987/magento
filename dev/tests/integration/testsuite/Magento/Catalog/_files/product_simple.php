@@ -95,7 +95,7 @@ $product->setTypeId(\Magento\Catalog\Model\Product\Type::TYPE_SIMPLE)
     ->setPrice(10)
     ->setWeight(1)
     ->setShortDescription("Short description")
-    ->setTaxClassId(0)
+    ->setTaxClassId(2)
     ->setTierPrices($tierPrices)
     ->setDescription('Description with <b>html tag</b>')
     ->setExtensionAttributes($productExtensionAttributesWebsiteIds)
@@ -201,9 +201,7 @@ $product->setOptions($options);
 
 /** @var \Magento\Catalog\Api\ProductRepositoryInterface $productRepository */
 $productRepository = $objectManager->create(\Magento\Catalog\Api\ProductRepositoryInterface::class);
-$product = $productRepository->save($product);
-$indexerProcessor = $objectManager->get(\Magento\Catalog\Model\Indexer\Product\Price\Processor::class);
-$indexerProcessor->reindexRow($product->getId());
+$productRepository->save($product);
 
 $categoryLinkManagement->assignProductToCategories(
     $product->getSku(),

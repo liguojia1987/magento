@@ -9,6 +9,8 @@ namespace Magento\SalesRule\Model\Rule\Action\Discount;
 
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Model\Product;
+use Magento\Catalog\Model\Product\Attribute\Source\Status;
+use Magento\Catalog\Model\Product\Visibility;
 use Magento\Catalog\Model\ProductRepository;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\Api\SearchCriteriaBuilder;
@@ -32,6 +34,8 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\SalesRule\Api\RuleRepositoryInterface;
 use Magento\SalesRule\Model\Rule;
+use Magento\SalesRule\Model\RuleFactory;
+use Magento\Store\Model\StoreManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
 
@@ -76,7 +80,7 @@ class CartFixedTest extends TestCase
     /**
      * @inheritdoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $objectManager = Bootstrap::getObjectManager();
         $this->cartManagement = $objectManager->create(GuestCartManagementInterface::class);
@@ -102,7 +106,7 @@ class CartFixedTest extends TestCase
      */
     public function testApplyFixedDiscount(array $productPrices): void
     {
-        $expectedDiscount = '-15.00';
+        $expectedDiscount = '-15.0000';
         $couponCode =  'CART_FIXED_DISCOUNT_15';
         $cartId = $this->cartManagement->createEmptyCart();
 
@@ -148,7 +152,7 @@ class CartFixedTest extends TestCase
         $this->quoteRepository->save($quote);
         $this->assertEquals($expectedGrandTotal, $quote->getGrandTotal());
 
-        /** @var \Magento\Quote\Model\QuoteIdMask $quoteIdMask */
+        /** @var QuoteIdMask $quoteIdMask */
         $quoteIdMask = $this->objectManager->create(QuoteIdMask::class);
         $quoteIdMask->load($quote->getId(), 'quote_id');
         Bootstrap::getInstance()->reinitialize();
@@ -235,7 +239,7 @@ class CartFixedTest extends TestCase
      */
     public function testCouponCodeWithWildcard()
     {
-        $expectedDiscount = '-5.00';
+        $expectedDiscount = '-5.0000';
         $couponCode =  '2?ds5!2d';
         $cartId = $this->cartManagement->createEmptyCart();
         $productPrice = 10;
@@ -278,8 +282,8 @@ class CartFixedTest extends TestCase
             ->setMetaTitle('meta title')
             ->setMetaKeyword('meta keyword')
             ->setMetaDescription('meta description')
-            ->setVisibility(\Magento\Catalog\Model\Product\Visibility::VISIBILITY_BOTH)
-            ->setStatus(\Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED)
+            ->setVisibility(Visibility::VISIBILITY_BOTH)
+            ->setStatus(Status::STATUS_ENABLED)
             ->setStockData(['qty' => 1, 'is_in_stock' => 1])
             ->setWeight(1);
 
@@ -327,7 +331,7 @@ class CartFixedTest extends TestCase
         array $secondOrderTotals,
         array $thirdOrderTotals
     ): void {
-        $store = $this->objectManager->get(\Magento\Store\Model\StoreManagerInterface::class)->getStore();
+        $store = $this->objectManager->get(StoreManagerInterface::class)->getStore();
         $salesRule = $this->getRule('15$ fixed discount on whole cart');
         $salesRule->setDiscountAmount($discount);
         $this->saveRule($salesRule);
@@ -427,27 +431,6 @@ class CartFixedTest extends TestCase
                 5,
                 [
                     'subtotal' => 10.00,
-                    'discount_amount' => -0.7100,
-                    'shipping_amount' => 5.00,
-                    'grand_total' => 14.2900,
-                ],
-                [
-                    'subtotal' => 20.00,
-                    'discount_amount' => -1.4300,
-                    'shipping_amount' => 5.00,
-                    'grand_total' => 23.5700,
-                ],
-                [
-                    'subtotal' => 5.00,
-                    'discount_amount' => -5.00,
-                    'shipping_amount' => 0.00,
-                    'grand_total' => 0.00,
-                ]
-            ],
-            'Discount = 1stOrderSubtotal: only 1st order gets discount' => [
-                10,
-                [
-                    'subtotal' => 10.00,
                     'discount_amount' => -1.4300,
                     'shipping_amount' => 5.00,
                     'grand_total' => 13.5700,
@@ -465,19 +448,40 @@ class CartFixedTest extends TestCase
                     'grand_total' => 0.00,
                 ]
             ],
+            'Discount = 1stOrderSubtotal: only 1st order gets discount' => [
+                10,
+                [
+                    'subtotal' => 10.00,
+                    'discount_amount' => -2.8600,
+                    'shipping_amount' => 5.00,
+                    'grand_total' => 12.1400,
+                ],
+                [
+                    'subtotal' => 20.00,
+                    'discount_amount' => -5.71,
+                    'shipping_amount' => 5.00,
+                    'grand_total' => 19.2900,
+                ],
+                [
+                    'subtotal' => 5.00,
+                    'discount_amount' => -5.00,
+                    'shipping_amount' => 0.00,
+                    'grand_total' => 0.00,
+                ]
+            ],
             'Discount > 1stOrderSubtotal: 1st order get 100% discount and 2nd order get the remaining discount' => [
                 15,
                 [
                     'subtotal' => 10.00,
-                    'discount_amount' => -2.1400,
+                    'discount_amount' => -4.2900,
                     'shipping_amount' => 5.00,
-                    'grand_total' => 12.8600,
+                    'grand_total' => 10.71,
                 ],
                 [
                     'subtotal' => 20.00,
-                    'discount_amount' => -4.2900,
+                    'discount_amount' => -8.5700,
                     'shipping_amount' => 5.00,
-                    'grand_total' => 20.71,
+                    'grand_total' => 16.43,
                 ],
                 [
                     'subtotal' => 5.00,
@@ -490,15 +494,15 @@ class CartFixedTest extends TestCase
                 30,
                 [
                     'subtotal' => 10.00,
-                    'discount_amount' => -4.2900,
+                    'discount_amount' => -8.5700,
                     'shipping_amount' => 5.00,
-                    'grand_total' => 10.7100,
+                    'grand_total' => 6.4300,
                 ],
                 [
                     'subtotal' => 20.00,
-                    'discount_amount' => -8.5700,
+                    'discount_amount' => -17.1400,
                     'shipping_amount' => 5.00,
-                    'grand_total' => 16.4300,
+                    'grand_total' => 7.8600,
                 ],
                 [
                     'subtotal' => 5.00,
@@ -507,20 +511,20 @@ class CartFixedTest extends TestCase
                     'grand_total' => 0.00,
                 ]
             ],
-            'Discount > 1stOrdSubtotal + 2ndOrdSubtotal: 1st order and 2nd order get 100% discount
-             and 3rd order get remaining discount' => [
+            'Discount > 1stOrdSubtotal + 2ndOrdSubtotal: 1st order and 2nd order get 100% discount'
+            . ' and 3rd order get remaining discount' => [
                 31,
                 [
                     'subtotal' => 10.00,
-                    'discount_amount' => -4.4300,
+                    'discount_amount' => -8.8600,
                     'shipping_amount' => 5.00,
-                    'grand_total' => 10.57,
+                    'grand_total' => 6.14,
                 ],
                 [
                     'subtotal' => 20.00,
-                    'discount_amount' => -8.8600,
+                    'discount_amount' => -17.7100,
                     'shipping_amount' => 5.00,
-                    'grand_total' => 16.1400,
+                    'grand_total' => 7.29,
                 ],
                 [
                     'subtotal' => 5.00,
@@ -570,7 +574,7 @@ class CartFixedTest extends TestCase
         /** @var Rule $salesRule */
         $dataModel = array_pop($items);
         /** @var Rule $ruleModel */
-        $ruleModel = $this->objectManager->get(\Magento\SalesRule\Model\RuleFactory::class)->create();
+        $ruleModel = $this->objectManager->get(RuleFactory::class)->create();
         $ruleModel->load($dataModel->getRuleId());
         return $ruleModel;
     }

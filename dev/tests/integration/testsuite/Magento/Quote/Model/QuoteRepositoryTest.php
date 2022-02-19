@@ -10,7 +10,6 @@ namespace Magento\Quote\Model;
 use Magento\Framework\Api\FilterBuilder;
 use Magento\Framework\Api\SearchCriteria;
 use Magento\Framework\Api\SearchCriteriaBuilder;
-use Magento\Framework\Api\SearchResults;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\AddressInterfaceFactory;
@@ -89,7 +88,7 @@ class QuoteRepositoryTest extends TestCase
     /**
      * @inheritdoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -107,7 +106,7 @@ class QuoteRepositoryTest extends TestCase
     /**
      * @inheritdoc
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         if ($this->quote instanceof CartInterface) {
             $this->quoteRepository->delete($this->quote);

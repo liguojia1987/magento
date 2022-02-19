@@ -9,8 +9,9 @@ use Magento\Customer\Model\CustomerAuthUpdate;
 use Magento\Customer\Model\CustomerRegistry;
 use Magento\Framework\Stdlib\DateTime;
 use Magento\TestFramework\Helper\Bootstrap;
+use Magento\TestFramework\Workaround\Override\Fixture\Resolver;
 
-require __DIR__ . '/../../../Magento/Customer/_files/customer.php';
+Resolver::getInstance()->requireDataFixture('Magento/Customer/_files/customer.php');
 
 $objectManager = Bootstrap::getObjectManager();
 /** @var CustomerRegistry $customerRegistry */

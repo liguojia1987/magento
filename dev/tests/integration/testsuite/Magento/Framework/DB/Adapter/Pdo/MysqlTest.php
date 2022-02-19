@@ -6,11 +6,15 @@
 namespace Magento\Framework\DB\Adapter\Pdo;
 
 use Magento\Framework\App\ResourceConnection;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\TestFramework\Helper\CacheCleaner;
 use Magento\Framework\DB\Ddl\Table;
 use Magento\TestFramework\Helper\Bootstrap;
 
+/**
+ * Class checks Mysql adapter behaviour
+ *
+ * @magentoDbIsolation disabled
+ */
 class MysqlTest extends \PHPUnit\Framework\TestCase
 {
     /**
@@ -18,7 +22,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
      */
     private $resourceConnection;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         set_error_handler(null);
         $this->resourceConnection = Bootstrap::getObjectManager()
@@ -26,7 +30,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         CacheCleaner::cleanAll();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         restore_error_handler();
     }
@@ -81,7 +85,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
      *
      * @param $sql
      * @return void|\Zend_Db_Statement_Pdo
-     * @throws LocalizedException
+     * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Zend_Db_Adapter_Exception
      */
     private function executeQuery($sql)
@@ -188,8 +192,8 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         //Test default value with expression
         $this->assertEquals('created_at', $dateColumn['COLUMN_NAME'], 'Incorrect column name');
         $this->assertEquals(Table::TYPE_DATETIME, $dateColumn['DATA_TYPE'], 'Incorrect column type');
-        $this->assertRegExp(
-            '/^(CURRENT_TIMESTAMP|current_timestamp\(\))$/',
+        $this->assertMatchesRegularExpression(
+            '/(CURRENT_TIMESTAMP|current_timestamp\(\))/',
             $dateColumn['DEFAULT'],
             'Incorrect column default expression value'
         );

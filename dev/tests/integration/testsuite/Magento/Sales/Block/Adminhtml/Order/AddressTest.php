@@ -41,7 +41,7 @@ class AddressTest extends TestCase
     /**
      * @inheritdoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -54,7 +54,7 @@ class AddressTest extends TestCase
     /**
      * @inheritdoc
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->registry->unregister('order_address');
 
@@ -93,7 +93,7 @@ class AddressTest extends TestCase
             ],
             'shipping_address' => [
                 AddressType::TYPE_SHIPPING,
-            ],
+            ]
         ];
     }
 
@@ -106,6 +106,6 @@ class AddressTest extends TestCase
      */
     private function getAddressByType(OrderInterface $order, string $type): ?OrderAddressInterface
     {
-        return $type === AddressType::TYPE_BILLING ? $order->getBillingAddress() : $order->getShippingAddress();
+        return $type ===  AddressType::TYPE_BILLING ? $order->getBillingAddress() : $order->getShippingAddress();
     }
 }

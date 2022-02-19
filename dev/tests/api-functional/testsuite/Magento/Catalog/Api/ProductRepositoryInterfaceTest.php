@@ -89,7 +89,7 @@ class ProductRepositoryInterfaceTest extends WebapiAbstract
     /**
      * @inheritDoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -104,7 +104,7 @@ class ProductRepositoryInterfaceTest extends WebapiAbstract
     /**
      * @inheritDoc
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->deleteFixtureProducts();
         parent::tearDown();
@@ -179,7 +179,7 @@ class ProductRepositoryInterfaceTest extends WebapiAbstract
             $this->_webApiCall($serviceInfo, ['sku' => $invalidSku]);
             $this->fail("Expected throwing exception");
         } catch (\SoapFault $e) {
-            $this->assertContains(
+            $this->assertStringContainsString(
                 $expectedMessage,
                 $e->getMessage(),
                 "SoapFault does not contain expected message."
@@ -223,6 +223,7 @@ class ProductRepositoryInterfaceTest extends WebapiAbstract
         try {
             $website = $websiteRepository->get($websiteCode);
         } catch (NoSuchEntityException $e) {
+            $website = null;
             $this->fail("Couldn`t load website: {$websiteCode}");
         }
 
@@ -289,7 +290,7 @@ class ProductRepositoryInterfaceTest extends WebapiAbstract
         $websitesData = [
             'website_ids' => [
                 1,
-                (int) $website->getId(),
+                (int)$website->getId(),
             ]
         ];
         $productBuilder[ProductInterface::EXTENSION_ATTRIBUTES_KEY] = $websitesData;
@@ -388,97 +389,6 @@ class ProductRepositoryInterfaceTest extends WebapiAbstract
         $response = $this->saveProduct($product);
         $this->assertArrayHasKey(ProductInterface::SKU, $response);
         $this->deleteProduct($product[ProductInterface::SKU]);
-    }
-
-    /**
-     * Media gallery entries with external videos
-     *
-     * @return array
-     */
-    public function externalVideoDataProvider(): array
-    {
-        return [
-            [
-                [
-                    [
-                        'media_type' => 'external-video',
-                        'disabled' => false,
-                        'label' => 'Test Video Created',
-                        'types' => [],
-                        'position' => 1,
-                        'content' => [
-                            'type' => 'image/png',
-                            'name' => 'thumbnail.png',
-                            'base64_encoded_data' => 'iVBORw0KGgoAAAANSUhEUgAAAP8AAADGCAMAAAAqo6adAAAAA1BMVEUAAP79f'
-                                . '+LBAAAASElEQVR4nO3BMQEAAADCoPVPbQwfoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
-                                . 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAA+BsYAAAF7hZJ0AAAAAElFTkSuQmCC',
-                        ],
-                        'extension_attributes' => [
-                            'video_content' => [
-                                'media_type' => 'external-video',
-                                'video_provider' => 'youtube',
-                                'video_url' => 'https://www.youtube.com/',
-                                'video_title' => 'Video title',
-                                'video_description' => 'Video description',
-                                'video_metadata' => 'Video meta',
-                            ],
-                        ],
-                    ]
-                ]
-            ],
-            [
-                [
-                    [
-                        'media_type' => 'external-video',
-                        'disabled' => false,
-                        'label' => 'Test Video Updated',
-                        'types' => [],
-                        'position' => 1,
-                        'content' => [
-                            'type' => 'image/png',
-                            'name' => 'thumbnail.png',
-                            'base64_encoded_data' => 'iVBORw0KGgoAAAANSUhEUgAAAP8AAADGCAMAAAAqo6adAAAAA1BMVEUAAP79f'
-                                . '+LBAAAASElEQVR4nO3BMQEAAADCoPVPbQwfoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
-                                . 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAA+BsYAAAF7hZJ0AAAAAElFTkSuQmCC',
-                        ],
-                        'extension_attributes' => [
-                            'video_content' => [
-                                'media_type' => 'external-video',
-                                'video_provider' => 'vimeo',
-                                'video_url' => 'https://www.vimeo.com/',
-                                'video_title' => 'Video title',
-                                'video_description' => 'Video description',
-                                'video_metadata' => 'Video meta',
-                            ],
-                        ],
-                    ]
-                ]
-            ]
-        ];
-    }
-
-    /**
-     * Test create/ update product with external video media gallery entry
-     *
-     * @dataProvider externalVideoDataProvider
-     * @param array $mediaGalleryData
-     */
-    public function testCreateWithExternalVideo(array $mediaGalleryData)
-    {
-        $simpleProductBaseData = $this->getSimpleProductData(
-            [
-                ProductInterface::NAME => 'Product With Ext. Video',
-                ProductInterface::SKU => 'prod-with-ext-video'
-            ]
-        );
-
-        $simpleProductBaseData['media_gallery_entries'] = $mediaGalleryData;
-
-        $response = $this->saveProduct($simpleProductBaseData);
-        $this->assertEquals(
-            $simpleProductBaseData['media_gallery_entries'][0]['extension_attributes'],
-            $response["media_gallery_entries"][0]["extension_attributes"]
-        );
     }
 
     /**
@@ -622,7 +532,7 @@ class ProductRepositoryInterfaceTest extends WebapiAbstract
 
         $this->assertArrayHasKey('product_links', $response);
         $links = $response['product_links'];
-        $this->assertEquals(1, count($links));
+        $this->assertCount(1, $links);
         $this->assertEquals($productLinkData, $links[0]);
 
         // update link information
@@ -649,7 +559,7 @@ class ProductRepositoryInterfaceTest extends WebapiAbstract
 
         $this->assertArrayHasKey('product_links', $response);
         $links = $response['product_links'];
-        $this->assertEquals(1, count($links));
+        $this->assertCount(1, $links);
         $this->assertEquals($productLinkData, $links[0]);
 
         // Remove link
@@ -730,9 +640,9 @@ class ProductRepositoryInterfaceTest extends WebapiAbstract
 
         $this->assertArrayHasKey('options', $response);
         $options = $response['options'];
-        $this->assertEquals(2, count($options));
-        $this->assertEquals(1, count($options[0]['values']));
-        $this->assertEquals(1, count($options[1]['values']));
+        $this->assertCount(2, $options);
+        $this->assertCount(1, $options[0]['values']);
+        $this->assertCount(1, $options[1]['values']);
 
         //update the product options, adding a value to option 1, delete an option and create a new option
         $options[0]['values'][] = [
@@ -760,9 +670,9 @@ class ProductRepositoryInterfaceTest extends WebapiAbstract
         $response = $this->updateProduct($response);
         $this->assertArrayHasKey('options', $response);
         $options = $response['options'];
-        $this->assertEquals(2, count($options));
-        $this->assertEquals(2, count($options[0]['values']));
-        $this->assertEquals(1, count($options[1]['values']));
+        $this->assertCount(2, $options);
+        $this->assertCount(2, $options[0]['values']);
+        $this->assertCount(1, $options[1]['values']);
 
         //update product without setting options field, option should not be changed
         unset($response['options']);
@@ -770,7 +680,7 @@ class ProductRepositoryInterfaceTest extends WebapiAbstract
         $response = $this->getProduct($productData[ProductInterface::SKU]);
         $this->assertArrayHasKey('options', $response);
         $options = $response['options'];
-        $this->assertEquals(2, count($options));
+        $this->assertCount(2, $options);
 
         //update product with empty options, options should be removed
         $response['options'] = [];
@@ -797,7 +707,7 @@ class ProductRepositoryInterfaceTest extends WebapiAbstract
         $response = $this->saveProduct($productData);
         $this->assertArrayHasKey('media_gallery_entries', $response);
         $mediaGalleryEntries = $response['media_gallery_entries'];
-        $this->assertEquals(2, count($mediaGalleryEntries));
+        $this->assertCount(2, $mediaGalleryEntries);
         $id = $mediaGalleryEntries[0]['id'];
         foreach ($mediaGalleryEntries as &$entry) {
             unset($entry['id']);
@@ -835,7 +745,7 @@ class ProductRepositoryInterfaceTest extends WebapiAbstract
         ];
         $response = $this->updateProduct($response);
         $mediaGalleryEntries = $response['media_gallery_entries'];
-        $this->assertEquals(1, count($mediaGalleryEntries));
+        $this->assertCount(1, $mediaGalleryEntries);
         unset($mediaGalleryEntries[0]['id']);
         $expectedValue = [
             [
@@ -852,13 +762,13 @@ class ProductRepositoryInterfaceTest extends WebapiAbstract
         unset($response['media_gallery_entries']);
         $response = $this->updateProduct($response);
         $mediaGalleryEntries = $response['media_gallery_entries'];
-        $this->assertEquals(1, count($mediaGalleryEntries));
+        $this->assertCount(1, $mediaGalleryEntries);
         unset($mediaGalleryEntries[0]['id']);
         $this->assertEquals($expectedValue, $mediaGalleryEntries);
         //pass empty array, delete all existing media gallery entries
         $response['media_gallery_entries'] = [];
         $response = $this->updateProduct($response);
-        $this->assertEquals(true, empty($response['media_gallery_entries']));
+        $this->assertEmpty($response['media_gallery_entries']);
         $this->deleteProduct($productData[ProductInterface::SKU]);
     }
 
@@ -1197,6 +1107,86 @@ class ProductRepositoryInterfaceTest extends WebapiAbstract
     }
 
     /**
+     * Test getList() method with pagination
+     *
+     * @param int $pageSize
+     * @param int $currentPage
+     * @param int $expectedCount
+     *
+     * @magentoAppIsolation enabled
+     * @magentoApiDataFixture Magento/Catalog/_files/products_for_search.php
+     * @dataProvider productPaginationDataProvider
+     */
+    public function testGetListPagination(int $pageSize, int $currentPage, int $expectedCount)
+    {
+        $fixtureProducts = 5;
+
+        /** @var FilterBuilder $filterBuilder */
+        $filterBuilder = Bootstrap::getObjectManager()->create(FilterBuilder::class);
+
+        $categoryFilter = $filterBuilder->setField('category_id')
+            ->setValue(333)
+            ->create();
+
+        /** @var SearchCriteriaBuilder $searchCriteriaBuilder */
+        $searchCriteriaBuilder = Bootstrap::getObjectManager()->create(SearchCriteriaBuilder::class);
+
+        $searchCriteriaBuilder->addFilters([$categoryFilter]);
+        $searchCriteriaBuilder->setPageSize($pageSize);
+        $searchCriteriaBuilder->setCurrentPage($currentPage);
+
+        $searchData = $searchCriteriaBuilder->create()->__toArray();
+        $requestData = ['searchCriteria' => $searchData];
+        $serviceInfo = [
+            'rest' => [
+                'resourcePath' => self::RESOURCE_PATH . '?' . http_build_query($requestData),
+                'httpMethod' => \Magento\Framework\Webapi\Rest\Request::HTTP_METHOD_GET,
+            ],
+            'soap' => [
+                'service' => self::SERVICE_NAME,
+                'serviceVersion' => self::SERVICE_VERSION,
+                'operation' => self::SERVICE_NAME . 'GetList',
+            ],
+        ];
+
+        $searchResult = $this->_webApiCall($serviceInfo, $requestData);
+
+        $this->assertEquals($fixtureProducts, $searchResult['total_count']);
+        $this->assertCount($expectedCount, $searchResult['items']);
+    }
+
+    /**
+     * Keep in mind: Fixture contains 5 products
+     *
+     * @return array
+     */
+    public function productPaginationDataProvider()
+    {
+        return [
+            'expect-all-items' => [
+                'pageSize' => 10,
+                'currentPage' => 1,
+                'expectedCount' => 5
+            ],
+            'expect-page=size-items' => [
+                'pageSize' => 2,
+                'currentPage' => 1,
+                'expectedCount' => 2
+            ],
+            'expect-less-than-pagesize-elements' => [
+                'pageSize' => 3,
+                'currentPage' => 2,
+                'expectedCount' => 2
+            ],
+            'expect-no-items' => [
+                'pageSize' => 100,
+                'currentPage' => 99,
+                'expectedCount' => 0
+            ]
+        ];
+    }
+
+    /**
      * Test getList() method with multiple filter groups and sorting and pagination
      *
      * @magentoApiDataFixture Magento/Catalog/_files/products_for_search.php
@@ -1233,7 +1223,7 @@ class ProductRepositoryInterfaceTest extends WebapiAbstract
         $sortOrder = $sortOrderBuilder->setField('meta_title')->setDirection(SortOrder::SORT_DESC)->create();
 
         /** @var SearchCriteriaBuilder $searchCriteriaBuilder */
-        $searchCriteriaBuilder =  Bootstrap::getObjectManager()->create(SearchCriteriaBuilder::class);
+        $searchCriteriaBuilder = Bootstrap::getObjectManager()->create(SearchCriteriaBuilder::class);
 
         $searchCriteriaBuilder->addFilters([$filter1, $filter2, $filter3, $filter4]);
         $searchCriteriaBuilder->addFilters([$filter5]);
@@ -1260,7 +1250,7 @@ class ProductRepositoryInterfaceTest extends WebapiAbstract
         $searchResult = $this->_webApiCall($serviceInfo, $requestData);
 
         $this->assertEquals(3, $searchResult['total_count']);
-        $this->assertEquals(1, count($searchResult['items']));
+        $this->assertCount(1, $searchResult['items']);
         $this->assertEquals('search_product_4', $searchResult['items'][0][ProductInterface::SKU]);
         $this->assertNotNull(
             $searchResult['items'][0][ExtensibleDataInterface::EXTENSION_ATTRIBUTES_KEY]['website_ids']
@@ -1662,8 +1652,8 @@ class ProductRepositoryInterfaceTest extends WebapiAbstract
         $missingAttributes = ['news_from_date', 'custom_design_from'];
         $expectedAttribute = ['special_price', 'special_from_date'];
         $attributeCodes = array_column($customAttributes, 'attribute_code');
-        $this->assertEquals(0, count(array_intersect($attributeCodes, $missingAttributes)));
-        $this->assertEquals(2, count(array_intersect($attributeCodes, $expectedAttribute)));
+        $this->assertCount(0, array_intersect($attributeCodes, $missingAttributes));
+        $this->assertCount(2, array_intersect($attributeCodes, $expectedAttribute));
     }
 
     /**
@@ -1695,7 +1685,7 @@ class ProductRepositoryInterfaceTest extends WebapiAbstract
         $this->saveProduct($productData);
         $response = $this->getProduct($productData[ProductInterface::SKU]);
         $customAttributes = array_column($response['custom_attributes'], 'value', 'attribute_code');
-        $this->assertFalse(array_key_exists(self::KEY_SPECIAL_PRICE, $customAttributes));
+        $this->assertArrayNotHasKey(self::KEY_SPECIAL_PRICE, $customAttributes);
     }
 
     /**
@@ -1820,8 +1810,8 @@ class ProductRepositoryInterfaceTest extends WebapiAbstract
      * Test design settings authorization
      *
      * @magentoApiDataFixture Magento/User/_files/user_with_custom_role.php
-     * @throws \Throwable
      * @return void
+     * @throws \Throwable
      */
     public function testSaveDesign(): void
     {

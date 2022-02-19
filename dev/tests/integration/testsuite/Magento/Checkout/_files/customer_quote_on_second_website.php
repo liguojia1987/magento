@@ -13,9 +13,10 @@ use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Api\Data\CartInterfaceFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
+use Magento\TestFramework\Workaround\Override\Fixture\Resolver;
 
-require __DIR__ . '/../../Customer/_files/customer.php';
-require __DIR__ . '/../../../Magento/Catalog/_files/products_with_websites_and_stores.php';
+Resolver::getInstance()->requireDataFixture('Magento/Customer/_files/customer.php');
+Resolver::getInstance()->requireDataFixture('Magento/Catalog/_files/products_with_websites_and_stores.php');
 
 $objectManager = Bootstrap::getObjectManager();
 /** @var ProductRepositoryInterface $productRepository */

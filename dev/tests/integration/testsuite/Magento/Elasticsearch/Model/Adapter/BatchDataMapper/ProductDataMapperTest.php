@@ -17,6 +17,9 @@ use Magento\Store\Model\StoreManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Test product data mapper
+ */
 class ProductDataMapperTest extends TestCase
 {
     /**
@@ -43,7 +46,7 @@ class ProductDataMapperTest extends TestCase
     /**
      * @inheritDoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->objectManager = Bootstrap::getObjectManager();
         $additionalFieldsProvider = $this->createMock(AdditionalFieldsProviderInterface::class);
@@ -60,12 +63,15 @@ class ProductDataMapperTest extends TestCase
     }
 
     /**
+     * Test mapping select attribute with different store labels
+     *
+     * @return void
      * @magentoDataFixture Magento/Catalog/_files/product_simple.php
      * @magentoDataFixture Magento/Store/_files/second_store.php
      * @magentoDataFixture Magento/Elasticsearch/_files/select_attribute_store_labels.php
      * @magentoConfigFixture default/catalog/search/engine elasticsearch
      */
-    public function testMapSelectAttributeWithDifferentStoreLabels()
+    public function testMapSelectAttributeWithDifferentStoreLabels(): void
     {
         $product = $this->productRepository->get('simple');
         $productId = $product->getId();
@@ -98,6 +104,8 @@ class ProductDataMapperTest extends TestCase
     }
 
     /**
+     * Get attribute option value
+     *
      * @param AbstractAttribute $attribute
      * @param string $text
      * @return string|null

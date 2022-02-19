@@ -17,9 +17,10 @@ use Magento\Quote\Model\QuoteFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
 use Magento\TestFramework\ObjectManager;
+use Magento\TestFramework\Workaround\Override\Fixture\Resolver;
 
-require __DIR__ . '/configurable_products.php';
-require __DIR__ . '/../../Customer/_files/customer_with_uk_address.php';
+Resolver::getInstance()->requireDataFixture('Magento/ConfigurableProduct/_files/configurable_products.php');
+Resolver::getInstance()->requireDataFixture('Magento/Customer/_files/customer_with_uk_address.php');
 
 /** @var ObjectManager $objectManager */
 $objectManager = Bootstrap::getObjectManager();

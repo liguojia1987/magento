@@ -10,7 +10,7 @@ use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Model\Product\Option;
 use Magento\Catalog\Model\Product\Option\Type\File\ValidatorFile;
 use Magento\Catalog\Model\Product\Option\Value;
-use Magento\Checkout\_files\ValidatorFileMock;
+use Magento\TestFramework\Catalog\Model\Product\Option\Type\File\ValidatorFileMock;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\DataObject;
 use Magento\Quote\Api\CartRepositoryInterface;
@@ -19,9 +19,10 @@ use Magento\Quote\Model\QuoteFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
 use Magento\TestFramework\ObjectManager;
+use Magento\TestFramework\Workaround\Override\Fixture\Resolver;
 
-require __DIR__ . '/../../Catalog/_files/product_with_options.php';
-require __DIR__ . '/../../Customer/_files/customer_with_uk_address.php';
+Resolver::getInstance()->requireDataFixture('Magento/Catalog/_files/product_with_options.php');
+Resolver::getInstance()->requireDataFixture('Magento/Customer/_files/customer_with_uk_address.php');
 
 /** @var ObjectManager $objectManager */
 $objectManager = Bootstrap::getObjectManager();
@@ -82,7 +83,7 @@ foreach ($dropDownValues as $dropDownId => $dropDownValue) {
     $itemsOptions[$dropDownValue->getTitle()] = $options;
 }
 
-$validatorFileMock = (new ValidatorFileMock())->getInstance();
+$validatorFileMock = $objectManager->get(ValidatorFileMock::class)->getInstance();
 $objectManager->addSharedInstance($validatorFileMock, ValidatorFile::class);
 
 $quote->setStoreId($storeManager->getStore()->getId())

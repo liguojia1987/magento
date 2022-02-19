@@ -32,7 +32,7 @@ class CollectionTest extends TestCase
     /**
      * @inheritdoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->localeResolverMock = $this->createMock(ResolverInterface::class);
         Bootstrap::getObjectManager()->removeSharedInstance(ResolverInterface::class);
@@ -78,7 +78,7 @@ class CollectionTest extends TestCase
     /**
      * @magentoDataFixture Magento/Directory/_files/region_name_jp.php
      */
-    public function testCollectionWithJpLocale()
+    public function testCollectionWithJpLocale(): void
     {
         $locale = 'JA_jp';
         $this->localeResolverMock->method('getLocale')->willReturn($locale);

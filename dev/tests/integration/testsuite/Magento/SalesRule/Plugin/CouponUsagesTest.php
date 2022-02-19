@@ -54,7 +54,7 @@ class CouponUsagesTest extends TestCase
     /**
      * @inheritdoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->objectManager = Bootstrap::getObjectManager();
         $this->usage = $this->objectManager->get(Usage::class);

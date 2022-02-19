@@ -48,7 +48,7 @@ class StoreThemesResolverInterfaceTest extends TestCase
     /**
      * @inheritDoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $objectManager = Bootstrap::getObjectManager();
@@ -68,7 +68,7 @@ class StoreThemesResolverInterfaceTest extends TestCase
     /**
      * @inheritDoc
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->mutableScopeConfig->setValue(
             self::XML_PATH_THEME_USER_AGENT,
@@ -83,7 +83,7 @@ class StoreThemesResolverInterfaceTest extends TestCase
      * @param array $expected
      * @dataProvider getThemesDataProvider
      */
-    public function testGetThemes(array $config, array $expected)
+    public function testGetThemes(array $config, array $expected): void
     {
         $store = $this->storeManager->getStore();
         $registeredThemes = [];
