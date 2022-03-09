@@ -4,13 +4,13 @@ namespace Qianrui\Helloworld\Api;
 interface ShipmentInterface
 {
     /**
-     * @return array
+     * @return []
      */
     public function getList();
 
     /**
      * @param int $id
-     * @return array
+     * @return []
      */
     public function getInfo($id);
 
