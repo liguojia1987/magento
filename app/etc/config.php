@@ -327,6 +327,7 @@ return [
         'Qianrui_Helloworld' => 1,
         'Qianrui_Review' => 1,
         'Qianrui_Slider' => 1,
+        'Qianrui_Swagger' => 1,
         'Qianrui_VendorsAvatarProfile' => 1,
         'Temando_ShippingRemover' => 1,
         'Vertex_Tax' => 1,

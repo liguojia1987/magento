@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd" label="qwerty">
+    <head>
+        <remove src="Magento_Swagger::swagger-ui/js/lang/ru.js"/>
+        <remove src="Magento_Swagger::swagger-ui/js/swagger-ui-bundle.min.js"/>
+        <remove src="Magento_Swagger::swagger-ui/js/swagger-ui-standalone-preset.min.js"/>
+    </head>
+    <body>
+        <!-- 删除不必要的block BEGIN -->
+        <!--<referenceBlock name="translate" remove="true"/>-->
+        <!-- 删除不必要的block END -->
+
+        <referenceContainer name="root">
+            <referenceBlock name="swaggerUiContent" class="Qianrui\Swagger\Block\Index" template="Qianrui_Swagger::swagger-ui/index.phtml"/>
+        </referenceContainer>
+    </body>
+</page>
