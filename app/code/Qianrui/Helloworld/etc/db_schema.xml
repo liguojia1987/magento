@@ -1,6 +1,6 @@
 <schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
 <table name="qr_hello2" disabled="true">
-    <column xsi:type="smallint" padding="6" name="status" default="0" nullable="false" comment="Status" after="name"/>
+    <column xsi:type="smallint" padding="6" name="status" default="0" nullable="false" comment="Status"/>
     <column name="name" disabled="true"/>
 </table>
 </schema>
