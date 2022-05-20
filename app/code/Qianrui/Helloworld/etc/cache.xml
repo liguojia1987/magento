@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Cache/etc/cache.xsd">
+    <type name="product_option" translate="label,description" instance="Qianrui\Helloworld\Model\Cache\Type\ProductOption">
+        <label>Product Option</label>
+        <description>Product Option Value</description>
+    </type>
+</config>
