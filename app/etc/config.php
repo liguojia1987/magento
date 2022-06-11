@@ -323,6 +323,7 @@ return [
         'PayPal_BraintreeGraphQl' => 1,
         'Qianrui_Backend' => 1,
         'Qianrui_Customer' => 1,
+        'Qianrui_Erp' => 1,
         'Qianrui_Hello' => 1,
         'Qianrui_Helloworld' => 1,
         'Qianrui_Review' => 1,
